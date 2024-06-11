@@ -1,12 +1,13 @@
-import { View, Text, Image } from 'react-native'
+import { View, Text, Image, Alert } from 'react-native'
 import React, { useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { ScrollView } from 'react-native-gesture-handler'
-import { Link } from 'expo-router';
+import { Link, router } from 'expo-router';
 
 import { images } from '../../constants';
 import FormField from '@/components/FormField';
 import CustomButton from '../../components/CustomButton';
+import { createUser } from '@/lib/appwrite';
 
 const SignUp = () => {
   const [form, setForm] = useState ({
@@ -23,9 +24,28 @@ const SignUp = () => {
     }));
   };
 
-  const submit = () => {
+  const submit = async () => {
+    if (!form.username || !form.email || !form.password) {
+      Alert.alert('Error', 'Please fill in all the fields');
+      return;
+    }
 
-  }
+    setIsSubmitting(true);
+    try {
+        await createUser(form.email, form.password, form.username);
+        // Handle successful sign-up (e.g., navigate to a different screen or show a success message)
+        router.replace('/home')
+    } catch (error) {
+        console.error(error);
+        if (error instanceof Error) {
+            Alert.alert('Error', error.message || 'Unknown error occurred');
+        } else {
+            Alert.alert('Error', 'Unknown error occurred');
+        }
+    } finally {
+        setIsSubmitting(false);
+    }
+  };
 
   return (
     <SafeAreaView className="bg-black h-full">
@@ -61,7 +81,7 @@ const SignUp = () => {
             />
 
             <CustomButton 
-                title="Sign In"
+                title="Sign Up"
                 handlePress={submit}
                 containerStyles="mt-7"
                 isLoading={isSubmitting}
