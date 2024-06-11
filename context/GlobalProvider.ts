@@ -1,3 +1,4 @@
+/*
 import { getCurrentUser } from '@/lib/appwrite';
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
@@ -67,3 +68,4 @@ const GlobalProvider = ({ children }: GlobalProviderProps) => {
 }
 
 export default GlobalProvider;
+*/
