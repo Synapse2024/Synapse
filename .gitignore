@@ -9,6 +9,9 @@ npm-debug.*
 *.mobileprovision
 *.orig.*
 web-build/
+# Ignore all files and directories under actions-runner/
+actions-runner/
+
 
 # macOS
 .DS_Store
