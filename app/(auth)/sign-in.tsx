@@ -8,6 +8,8 @@ import { images } from '../../constants';
 import FormField from '@/components/FormField';
 import CustomButton from '../../components/CustomButton';
 import { signIn } from '@/lib/appwrite';
+import { getCurrentUser } from '@/lib/appwrite';
+import useGlobalStore from '../../hooks/useGlobalStore';
 
 const SignIn = () => {
   const [form, setForm] = useState ({
@@ -15,6 +17,8 @@ const SignIn = () => {
     password: '',
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const { setUser, setIsLoggedIn } = useGlobalStore();
 
   const handleChangeText = (key: string) => (text: string) => {
     setForm((prevForm) => ({
@@ -24,9 +28,8 @@ const SignIn = () => {
   };
 
   const submit = async () => {
-    if (!form.email || !form.password) {
+    if (form.email === "" || form.password === "") {
       Alert.alert('Error', 'Please fill in all the fields');
-      return;
     }
 
     setIsSubmitting(true);
@@ -34,7 +37,10 @@ const SignIn = () => {
         await signIn(form.email, form.password);
         
         // set it to global state..,
-        
+        const result = await getCurrentUser();
+        setUser(result);
+        setIsLoggedIn(true);
+        Alert.alert("Success", "User signed in successfully");
         router.replace('/home')
     } catch (error) {
         console.error(error);

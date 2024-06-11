@@ -8,7 +8,13 @@ import { Video, ResizeMode } from 'expo-av';
 import { images } from '../constants';
 import CustomButton from '@/components/CustomButton';
 
+import useGlobalStore from '../hooks/useGlobalStore';
+
 export default function App() {
+  const {isLoading, isLoggedIn} = useGlobalStore();
+
+  if(!isLoading && isLoggedIn) return <Redirect href="/home"/>
+
   return (
     <GestureHandlerRootView style={{ flex: 1}}>
       <SafeAreaView style={{ flex: 1, backgroundColor: 'black' }}>

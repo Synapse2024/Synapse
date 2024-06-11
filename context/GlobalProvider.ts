@@ -1,71 +1,56 @@
-/*
-import { getCurrentUser } from '@/lib/appwrite';
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { useEffect, ReactNode } from 'react';
+import { View } from 'react-native';
+import { getCurrentUser, signIn } from '@/lib/appwrite';
+import useGlobalStore from '@/hooks/useGlobalStore';
 
-// Define the types for the context values
-interface GlobalContextProps {
-    isLoggedIn: boolean;
-    setIsLoggedIn: (value: boolean) => void;
-    user: any; // You can replace `any` with a specific type if you have one for the user
-    setUser: (value: any) => void;
-    isLoading: boolean;
-}
-
-// Create a context with a default value of `undefined`
-const GlobalContext = createContext<GlobalContextProps | undefined>(undefined);
-
-// Custom hook to use the GlobalContext
-export const useGlobalContext = () => {
-    const context = useContext(GlobalContext);
-    if (!context) {
-        throw new Error('useGlobalContext must be used within a GlobalProvider');
-    }
-    return context;
-};
-
-// Define the type for GlobalProvider props
 interface GlobalProviderProps {
-    children: ReactNode;
+  children: ReactNode;
 }
 
-const GlobalProvider = ({ children }: GlobalProviderProps) => {
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [user, setUser] = useState<any>(null); // You can replace `any` with a specific type if you have one for the user
-    const [isLoading, setIsLoading] = useState(true);
-
+const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
+    const { setIsLoggedIn, setUser, setIsLoading } = useGlobalStore();
+  
     useEffect(() => {
-        getCurrentUser()
-            .then((res) => {
-                if (res) {
-                    setIsLoggedIn(true);
-                    setUser(res);
-                } else {
-                    setIsLoggedIn(false);
-                    setUser(null);
-                }
-            })
-            .catch((error) => {
-                console.log(error);
-            })
-            .finally(() => {
-                setIsLoading(false);
-            });
-    }, []);
-
-    return (
-        <GlobalContext.Provider
-            value={{
-                isLoggedIn,
-                setIsLoggedIn,
-                user,
-                setUser,
-                isLoading,
-            }}
-        >
-            {children}
-        </GlobalContext.Provider>
-    );
-}
-
-export default GlobalProvider;
-*/
+      const checkSession = async () => {
+        setIsLoading(true);
+        try {
+          const currentUser = await getCurrentUser(); // Checks if there is an active session
+          if (currentUser) {
+            setIsLoggedIn(true);
+            setUser(currentUser);
+          } else {
+            const session = localStorage.getItem('session');
+            if (session) {
+              const { email, password } = JSON.parse(session);
+              try {
+                await signIn(email, password); // Attempt to sign in only if no active user session is found
+                const newCurrentUser = await getCurrentUser();
+                setIsLoggedIn(true);
+                setUser(newCurrentUser);
+              } catch (signInError) {
+                console.log('Error in signIn:', signInError);
+                // Optionally, handle existing session scenario
+              }
+            } else {
+              setIsLoggedIn(false);
+              setUser(null);
+            }
+          }
+        } catch (error) {
+          console.log('Error in getCurrentUser:', error);
+          setIsLoggedIn(false);
+          setUser(null);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+  
+      checkSession();
+    }, [setIsLoggedIn, setUser, setIsLoading]);
+  
+    return children;
+  };
+  
+  export default GlobalProvider;
+  
+  
