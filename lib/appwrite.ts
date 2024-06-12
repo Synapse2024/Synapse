@@ -27,19 +27,12 @@ export const createUser = async (email: string, password: string, username: stri
         const userId = ID.unique();
         console.log('Generated userId:', userId);
 
-        const newAccount = await account.create(
-           userId, 
-           email,
-           password,
-           username
-        );
-
+        const newAccount = await account.create(userId, email, password, username);
         console.log('newAccount:', newAccount);
 
         if (!newAccount) throw new Error('Account creation failed');
 
         const avatarUrl = avatars.getInitials(username);
-
         await signIn(email, password);
 
         const newUserId = ID.unique();
@@ -58,7 +51,6 @@ export const createUser = async (email: string, password: string, username: stri
         );
 
         console.log('newUser:', newUser);
-
         return newUser;
     } catch (error) {
         console.log('Error in createUser:', error);
@@ -72,11 +64,20 @@ export const createUser = async (email: string, password: string, username: stri
 
 export const signIn = async (email: string, password: string) => {
     try {
-        // Assuming 'createSession' is the correct method
         console.log('Signing in with email:', email); // Log email
+
+        // Check if there is an active session
+        const sessions = await account.listSessions();
+        if (sessions.sessions.length > 0) {
+            console.log('Active session found, using existing session.');
+            return sessions.sessions[0];
+        }
+
         const session = await account.createEmailPasswordSession(email, password);
         console.log('Session created:', session); // Log the session object
 
+        // Store session credentials in localStorage
+        localStorage.setItem('session', JSON.stringify({ email, password }));
         return session;
     } catch (error) {
         console.log('Error in signIn:', error);
@@ -91,17 +92,17 @@ export const signIn = async (email: string, password: string) => {
 export const getCurrentUser = async () => {
     try {
         const currentAccount = await account.get();
-        if(!currentAccount) throw Error;
+        if (!currentAccount) throw Error;
 
         const currentUser = await databases.listDocuments(
             config.databaseId,
             config.userCollectionId,
             [Query.equal('account', currentAccount.$id)]
-        )
+        );
 
-        if(!currentUser) throw Error;
+        if (!currentUser) throw Error;
 
-        return currentUser.documents[0]; 
+        return currentUser.documents[0];
     } catch (error) {
         console.log(error);
     }
