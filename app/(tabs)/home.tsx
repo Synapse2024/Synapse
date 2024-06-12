@@ -12,20 +12,19 @@ import useAppwrite from '@/lib/useAppwrite';
 interface Post {
   $id: string;
   id: number; 
+  title: string;
 }
 
 const Home = () => {
-  const { data: posts, isLoading, fetchData } = useAppwrite(getAllPosts);
+  const { data: posts, isLoading, refetch } = useAppwrite(getAllPosts);
 
   const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await fetchData();
+    await refetch();
     setRefreshing(false);
   };
-
-  console.log(posts);
 
   const [searchValue, setSearchValue] = useState('');
 
@@ -39,7 +38,7 @@ const Home = () => {
         data={posts}
         keyExtractor={(item, index) => item.id.toString() + index} // Ensure unique keys by combining id and index
         renderItem={({ item }) => (
-          <Text className="text-3xl text-white p-2">{item.id}</Text>
+          <Text className="text-3xl text-white p-2">{item.title}</Text>
         )}
         ListHeaderComponent={() => (
           <View className="p-5">

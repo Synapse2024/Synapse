@@ -4,6 +4,7 @@ import { Alert } from 'react-native';
 interface Post {
   $id: string;
   id: number; // Adjust the type based on your data structure
+  title: string;
 }
 
 // Define the type for the fn parameter
@@ -20,7 +21,8 @@ const useAppwrite = (fn: FetchFunction) => {
       const posts: Post[] = response.map((doc: any) => ({
         $id: doc.$id,
         id: doc.id ?? Math.random(), // Ensure that this matches the structure of your documents and provide a fallback value if id is missing
-      }));
+        title: doc.title
+    }));
       setData(posts);
     } catch (error: any) {
       Alert.alert('Error', error.message);
@@ -33,7 +35,9 @@ const useAppwrite = (fn: FetchFunction) => {
     fetchData();
   }, [fetchData]);
 
-  return { data, isLoading, fetchData };
+  const refetch = () => fetchData();
+
+  return { data, isLoading, refetch };
 };
 
 export default useAppwrite;
