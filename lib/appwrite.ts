@@ -10,6 +10,16 @@ export const config = {
     storageId: '666770a4002a8165f5cb'
 };
 
+const {
+    endpoint,
+    platform,
+    projectId,
+    databaseId,
+    userCollectionId,
+    videoCollectionId,
+    storageId,
+} = config;
+
 // Init your React Native SDK
 const client = new Client();
 
@@ -105,5 +115,23 @@ export const getCurrentUser = async () => {
         return currentUser.documents[0];
     } catch (error) {
         console.log(error);
+    }
+}
+
+export const getAllPosts = async () => {
+    try {
+        const posts = await databases.listDocuments(
+            databaseId,
+            videoCollectionId
+        );
+
+        return posts.documents;
+    } catch (error) {
+        console.log('Error in getAllPosts:', error);
+        if (error instanceof Error) {
+            throw new Error(error.message || 'Unknown error occurred');
+        } else {
+            throw new Error('Unknown error occurred');
+        }
     }
 }
