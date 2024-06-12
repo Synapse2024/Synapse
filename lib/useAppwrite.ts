@@ -2,10 +2,16 @@ import { useEffect, useState, useCallback } from "react";
 import { Alert } from 'react-native';
 
 interface Post {
-  $id: string;
-  id: number; // Adjust the type based on your data structure
-  title: string;
-}
+    $id: string;
+    id: number;
+    title: string;
+    thumbnail: string;
+    video: string;
+    creator: {
+      username: string;
+      avatar: string;
+    };
+  }
 
 // Define the type for the fn parameter
 type FetchFunction = () => Promise<any[]>;
@@ -20,9 +26,15 @@ const useAppwrite = (fn: FetchFunction) => {
       const response = await fn();
       const posts: Post[] = response.map((doc: any) => ({
         $id: doc.$id,
-        id: doc.id ?? Math.random(), // Ensure that this matches the structure of your documents and provide a fallback value if id is missing
-        title: doc.title
-    }));
+        id: doc.id ?? Math.random(),
+        title: doc.title,
+        thumbnail: doc.thumbnail,
+        video: doc.video,
+        creator: {
+          username: doc.creator.username,
+          avatar: doc.creator.avatar
+        },
+      }));
       setData(posts);
     } catch (error: any) {
       Alert.alert('Error', error.message);

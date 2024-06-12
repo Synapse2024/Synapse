@@ -5,6 +5,7 @@ import { images } from '../../constants';
 import SearchInput from '@/components/SearchInput';
 import Trending from '@/components/Trending';
 import EmptyState from '@/components/EmptyState';
+import VideoCard from '@/components/VideoCard';
 import { getAllPosts } from '@/lib/appwrite';
 import useAppwrite from '@/lib/useAppwrite';
 
@@ -13,6 +14,12 @@ interface Post {
   $id: string;
   id: number; 
   title: string;
+  thumbnail: string;
+  video: string;
+  creator: {
+    username: string;
+    avatar: string;
+  };
 }
 
 const Home = () => {
@@ -38,7 +45,8 @@ const Home = () => {
         data={posts}
         keyExtractor={(item, index) => item.id.toString() + index} // Ensure unique keys by combining id and index
         renderItem={({ item }) => (
-          <Text className="text-3xl text-white p-2">{item.title}</Text>
+          <VideoCard video={item}/>
+          /*<Text className="text-3xl text-white p-2">{item.title}</Text>*/
         )}
         ListHeaderComponent={() => (
           <View className="p-5">
