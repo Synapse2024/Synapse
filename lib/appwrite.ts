@@ -1,5 +1,6 @@
 import { Account, Avatars, Databases, Client, ID, Query } from 'react-native-appwrite';
 
+
 export const config = {
     endpoint: 'https://cloud.appwrite.io/v1',
     platform: 'com.Synapse.Synapse',
@@ -172,4 +173,4 @@ export const searchPosts = async (query: string) => {
             throw new Error('Unknown error occurred');
         }
     }
-}
+};

@@ -55,7 +55,7 @@ const Home = () => {
             <View className="flex-row justify-between mb-6">
               <View>
                 <Text className="font-pmedium text-sm text-gray-100">Welcome Back</Text>
-                <Text className="text-2xl font-psemibold text-white">Username1</Text>
+                <Text className="text-2xl font-psemibold text-white">testing123</Text>
               </View>
               <View className="mt-1.5">
                 <Image 

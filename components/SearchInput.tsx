@@ -9,6 +9,7 @@ type FormFieldProps = {
   placeholder: string;
   handleChangeText: (text: string) => void;
   otherStyles?: string;
+  initialQuery?: string;
 } & TextInputProps; // Extending TextInputProps to accept additional TextInput props
 
 const SearchInput: React.FC<FormFieldProps> = ({ 
@@ -17,12 +18,13 @@ const SearchInput: React.FC<FormFieldProps> = ({
     placeholder, 
     handleChangeText, 
     otherStyles, 
+    initialQuery,
     ...props 
 }) => {
 
     const pathname = usePathname();
     const router = useRouter();
-    const [query, setQuery] = useState('');
+    const [query, setQuery] = useState(initialQuery || '');
 
     return (
         <View className="border-2 border-black-200 w-full h-16 px-4 bg-black-100 rounded-2xl focus:border-secondary items-center flex-row space-x-4">
@@ -59,4 +61,4 @@ const SearchInput: React.FC<FormFieldProps> = ({
     );
 };
 
-export default SearchInput;
+export default SearchInput; 
