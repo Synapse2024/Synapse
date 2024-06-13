@@ -3,6 +3,7 @@ import * as Animatable from 'react-native-animatable';
 import React, { useState } from 'react';
 import { icons } from '@/constants';
 import { Video, ResizeMode, AVPlaybackStatus } from 'expo-av';
+import { WebView } from 'react-native-webview';
 
 interface TrendingItemProps {
   activeItem: Post;
@@ -27,6 +28,11 @@ const zoomOut = {
   }
 }
 
+const isYouTubeUrl = (url: string) => {
+  const regex = /^(https?\:\/\/)?(www\.youtube\.com|youtu\.?be)\/.+$/;
+  return regex.test(url);
+};
+
 const TrendingItem: React.FC<TrendingItemProps> = ({ activeItem, item }) => {
   const [play, setPlay] = useState(false);
 
@@ -43,14 +49,25 @@ const TrendingItem: React.FC<TrendingItemProps> = ({ activeItem, item }) => {
       duration={500}
     >
       {play ? (
-        <Video 
-          source={{ uri: item.video }}
-          className="w-52 h-72 rounded-[35px] mt-3 bg-white/10"
-          resizeMode={ResizeMode.CONTAIN}
-          useNativeControls
-          shouldPlay
-          onPlaybackStatusUpdate={handlePlaybackStatusUpdate}
-        />
+        isYouTubeUrl(item.video) ? (
+          <View className="w-52 h-72 rounded-[35px] mt-3 overflow-hidden">
+            <WebView 
+              source={{ uri: item.video }}
+              style={{ width: '100%', height: '100%' }}
+              javaScriptEnabled
+              domStorageEnabled
+            />
+          </View>
+        ) : (
+          <Video 
+            source={{ uri: item.video }}
+            className="w-52 h-72 rounded-[35px] mt-3 bg-white/10"
+            resizeMode={ResizeMode.CONTAIN}
+            useNativeControls
+            shouldPlay
+            onPlaybackStatusUpdate={handlePlaybackStatusUpdate}
+          />
+        )
       ) : (
         <TouchableOpacity
           className="relative justify-center items-center"
@@ -81,7 +98,7 @@ interface Post {
   $id: string;
   id: number; 
   thumbnail: string; // Add other properties as needed
-  video: string; //? check this
+  video: string;
 }
 
 // Define the props interface
@@ -90,13 +107,16 @@ interface TrendingProps {
 }
 
 const Trending: React.FC<TrendingProps> = ({ posts }) => {
-  const [activeItem, setActiveItem] = useState(posts[1]);
+  const [activeItem, setActiveItem] = useState(posts[0]);
 
   const viewableItemsChanges = ({ viewableItems }: { viewableItems: Array<{ key: string }> }) => {
     if (viewableItems.length > 0) {
-      setActiveItem(viewableItems[0].key as unknown as Post); // Cast key to Post
+      const viewablePost = posts.find(post => post.$id === viewableItems[0].key);
+      if (viewablePost) {
+        setActiveItem(viewablePost);
+      }
     }
-  }
+  };
 
   return (
     <FlatList 
