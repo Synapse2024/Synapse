@@ -6,7 +6,7 @@ import SearchInput from '@/components/SearchInput';
 import Trending from '@/components/Trending';
 import EmptyState from '@/components/EmptyState';
 import VideoCard from '@/components/VideoCard';
-import { getAllPosts } from '@/lib/appwrite';
+import { getAllPosts, getLatestVideos } from '@/lib/appwrite';
 import useAppwrite from '@/lib/useAppwrite';
 
 // Define the Post type here or import it from where it's defined
@@ -25,11 +25,14 @@ interface Post {
 const Home = () => {
   const { data: posts, isLoading, refetch } = useAppwrite(getAllPosts);
 
+  const { data: latestVideos, isLoading: isLatestLoading, refetch: refetchLatest } = useAppwrite(getLatestVideos);
+
   const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = async () => {
     setRefreshing(true);
     await refetch();
+    await refetchLatest();
     setRefreshing(false);
   };
 
@@ -46,7 +49,6 @@ const Home = () => {
         keyExtractor={(item, index) => item.id.toString() + index} // Ensure unique keys by combining id and index
         renderItem={({ item }) => (
           <VideoCard video={item}/>
-          /*<Text className="text-3xl text-white p-2">{item.title}</Text>*/
         )}
         ListHeaderComponent={() => (
           <View className="p-5">
@@ -74,7 +76,7 @@ const Home = () => {
                 Latest Videos
               </Text>
 
-              <Trending posts={posts} />
+              <Trending posts={latestVideos ?? []} />
             </View>
           </View>
         )}

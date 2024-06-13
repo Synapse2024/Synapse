@@ -135,3 +135,22 @@ export const getAllPosts = async () => {
         }
     }
 }
+
+export const getLatestVideos = async () => {
+    try {
+        const posts = await databases.listDocuments(
+            databaseId,
+            videoCollectionId,
+            [Query.orderDesc('$createdAt'), Query.limit(7)]
+        );
+
+        return posts.documents;
+    } catch (error) {
+        console.log('Error in getLatestVideos:', error);
+        if (error instanceof Error) {
+            throw new Error(error.message || 'Unknown error occurred');
+        } else {
+            throw new Error('Unknown error occurred');
+        }
+    }
+}
