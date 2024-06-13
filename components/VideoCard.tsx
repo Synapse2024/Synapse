@@ -1,8 +1,11 @@
 import { View, Text, Image, TouchableOpacity } from 'react-native';
+import * as Animatable from 'react-native-animatable';
 import React, { useState } from 'react';
 import { icons } from '../constants';
+import { Video as ExpoVideo, ResizeMode, AVPlaybackStatus } from 'expo-av';
+import { WebView } from 'react-native-webview';
 
-interface Video {
+interface VideoData {
   title: string;
   thumbnail: string;
   video: string;
@@ -13,11 +16,22 @@ interface Video {
 }
 
 interface VideoCardProps {
-  video: Video;
+  video: VideoData;
 }
+
+const isYouTubeUrl = (url: string) => {
+  const regex = /^(https?\:\/\/)?(www\.youtube\.com|youtu\.?be)\/.+$/;
+  return regex.test(url);
+};
 
 const VideoCard: React.FC<VideoCardProps> = ({ video: { title, thumbnail, video, creator: { username, avatar }}}) => {
   const [play, setPlay] = useState(false);
+
+  const handlePlaybackStatusUpdate = (status: AVPlaybackStatus) => {
+    if (status.isLoaded && !status.isPlaying && status.didJustFinish) {
+      setPlay(false);
+    }
+  };
 
   return (
     <View className="flex-col items-center px-4 mb-14">
@@ -49,7 +63,25 @@ const VideoCard: React.FC<VideoCardProps> = ({ video: { title, thumbnail, video,
       </View>
 
       {play ? (
-        <Text className="text-white">Playing</Text>
+        isYouTubeUrl(video) ? (
+          <View className="w-full h-60 rounded-xl mt-3 overflow-hidden">
+            <WebView 
+              source={{ uri: video }}
+              style={{ width: '100%', height: '100%' }}
+              javaScriptEnabled
+              domStorageEnabled
+            />
+          </View>
+        ) : (
+          <ExpoVideo 
+            source={{ uri: video }}
+            className="w-full h-60 rounded-xl mt-3"
+            resizeMode={ResizeMode.CONTAIN}
+            useNativeControls
+            shouldPlay
+            onPlaybackStatusUpdate={handlePlaybackStatusUpdate}
+          />
+        )
       ) : (
         <TouchableOpacity
           activeOpacity={0.7}
