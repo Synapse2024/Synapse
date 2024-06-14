@@ -1,5 +1,6 @@
 import { Account, Avatars, Databases, Client, ID, Query } from 'react-native-appwrite';
 
+
 export const config = {
     endpoint: 'https://cloud.appwrite.io/v1',
     platform: 'com.Synapse.Synapse',
@@ -9,6 +10,16 @@ export const config = {
     videoCollectionId: '66676dc20017f10dc081',
     storageId: '666770a4002a8165f5cb'
 };
+
+const {
+    endpoint,
+    platform,
+    projectId,
+    databaseId,
+    userCollectionId,
+    videoCollectionId,
+    storageId,
+} = config;
 
 // Init your React Native SDK
 const client = new Client();
@@ -107,3 +118,59 @@ export const getCurrentUser = async () => {
         console.log(error);
     }
 }
+
+export const getAllPosts = async () => {
+    try {
+        const posts = await databases.listDocuments(
+            databaseId,
+            videoCollectionId
+        );
+
+        return posts.documents;
+    } catch (error) {
+        console.log('Error in getAllPosts:', error);
+        if (error instanceof Error) {
+            throw new Error(error.message || 'Unknown error occurred');
+        } else {
+            throw new Error('Unknown error occurred');
+        }
+    }
+}
+
+export const getLatestVideos = async () => {
+    try {
+        const posts = await databases.listDocuments(
+            databaseId,
+            videoCollectionId,
+            [Query.orderDesc('$createdAt'), Query.limit(7)]
+        );
+
+        return posts.documents;
+    } catch (error) {
+        console.log('Error in getLatestVideos:', error);
+        if (error instanceof Error) {
+            throw new Error(error.message || 'Unknown error occurred');
+        } else {
+            throw new Error('Unknown error occurred');
+        }
+    }
+}
+
+export const searchPosts = async (query: string) => {
+    try {
+        const posts = await databases.listDocuments(
+            databaseId,
+            videoCollectionId,
+            [Query.search('title', query)]
+        );
+
+        return posts.documents;
+    } catch (error) {
+        console.log('Error in searchPosts:', error);
+        if (error instanceof Error) {
+            throw new Error(error.message || 'Unknown error occurred');
+        } else {
+            throw new Error('Unknown error occurred');
+        }
+    }
+};
