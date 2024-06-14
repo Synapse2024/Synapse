@@ -174,3 +174,22 @@ export const searchPosts = async (query: string) => {
         }
     }
 };
+
+export const getUserPosts = async (userId: string) => {
+    try {
+        const posts = await databases.listDocuments(
+            databaseId,
+            videoCollectionId,
+            [Query.equal('creator', userId)]
+        );
+
+        return posts.documents;
+    } catch (error) {
+        console.log('Error in searchPosts:', error);
+        if (error instanceof Error) {
+            throw new Error(error.message || 'Unknown error occurred');
+        } else {
+            throw new Error('Unknown error occurred');
+        }
+    }
+};
