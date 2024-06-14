@@ -10,7 +10,7 @@ on:
       - main  # Run the workflow on pull requests targeting the main branch
 
 jobs:
-  setup:
+  test:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
@@ -20,13 +20,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - run: npm install
-
-  test:
-    needs: setup  # Indicates that this job depends on the 'setup' job
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-    runs-on: self-hosted
-    steps:
-      - run: npm run test  # Runs the tests
+      - name: setup
+        run: npm install
+      - name: test
+        run: npm run test  # Runs the tests
