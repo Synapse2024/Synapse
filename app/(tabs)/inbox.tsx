@@ -3,9 +3,9 @@ import React from 'react'
 
 const inbox = () => {
   return (
-    <View>
-      <Text>inbox</Text>
-    </View>
+    <>
+    
+    </>
   )
 }
 
